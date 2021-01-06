@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/accounts.css' %}">
+{% endblock head %}
+
+{% block title %}
+마이페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+<div class="tab_wrap">
+  {% if tab_is == 0 %} <!-- 정보관리가 처음 요청될 때의 메인 탭 -->
+    <div class="tab_menu_container">
+      <button class="tab_menu_btn on" type="button">회원정보 수정</button>
+      <button class="tab_menu_btn" type="button">비밀번호 수정</button>
+      <button class="tab_menu_btn" type="button">회원탈퇴</button>
+    </div> <!-- tab_menu_container e -->
+
+    <div class="tab_box_container">
+      <div class="tab_box on">{% include 'info_modify.html' %}</div>
+      <div class="tab_box">{% include 'password_modify.html' %}</div>
+      <div class="tab_box">{% include 'user_delete.html' %}</div>
+    </div> <!-- tab_box_container e -->
+  {% elif tab_is == 1 %} <!-- 비밀번호 수정 탭에서 오류가 났을 때 메인 탭 -->
+    <div class="tab_menu_container">
+      <button class="tab_menu_btn" type="button">회원정보 수정</button>
+      <button class="tab_menu_btn on" type="button">비밀번호 수정</button>
+      <button class="tab_menu_btn" type="button">회원탈퇴</button>
+    </div> <!-- tab_menu_container e -->
+
+    <div class="tab_box_container">
+      <div class="tab_box">{% include 'info_modify.html' %}</div>
+      <div class="tab_box on">{% include 'password_modify.html' %}</div>
+      <div class="tab_box">{% include 'user_delete.html' %}</div>
+    </div> <!-- tab_box_container e -->
+  {% elif tab_is == 2  %} <!-- 회원탈퇴 중 오류가 났을 때 메인 탭 -->
+    <div class="tab_menu_container">
+      <button class="tab_menu_btn" type="button">회원정보 수정</button>
+      <button class="tab_menu_btn" type="button">비밀번호 수정</button>
+      <button class="tab_menu_btn on" type="button">회원탈퇴</button>
+    </div> <!-- tab_menu_container e -->
+
+    <div class="tab_box_container">
+      <div class="tab_box">{% include 'info_modify.html' %}</div>
+      <div class="tab_box">{% include 'password_modify.html' %}</div>
+      <div class="tab_box on">{% include 'user_delete.html' %}</div>
+    </div> <!-- tab_box_container e -->
+  {% endif %}
+</div> <!-- tab_wrap e -->
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $('.tab_menu_btn').on('click',function(){
+  //버튼 색 제거,추가
+  $('.tab_menu_btn').removeClass('on');
+  $(this).addClass('on')
+
+  //컨텐츠 제거 후 인덱스에 맞는 컨텐츠 노출
+  var idx = $('.tab_menu_btn').index(this);
+
+  $('.tab_box').hide();
+  $('.tab_box').eq(idx).show();
+});
+</script>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+{% endblock body %}
+

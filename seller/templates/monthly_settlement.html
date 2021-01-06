@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/monthly_settlement.css' %}">
+{% endblock head %}
+
+{% block title %}
+월 정산서 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div align="center" style="margin-top:100px;">
+            <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "seller:monthly_settlement" %}'>{% csrf_token %}
+        <input type="month" id="currnetMonth" name="date">
+        <button class="btn btn-primary" type="submit">조회</button>
+    </form>
+            <div style="width:900px; display:flex; justify-content:space-around;">
+            <div>
+            <h4>현금결제 내역</h4>
+            <table class="settlement">
+                <tr class="settlement_tr">
+                    <th class="settlement_th" width="190">주문번호</th>
+                    <th class="settlement_th" width="150">결제금액</th>
+                </tr>
+                {% for data in bank %}
+                <tr class="settlement_tr">
+                    <td class="settlement_td" width="190">{{ data.order_num }}</td>
+                    <td class="settlement_td" width="250">{{ data.purchased_price }} 원</td>
+                </tr>
+                {% endfor %}
+                <tr class="settlement_tr">
+                    <th class="settlement_td" width="190">합계</th>
+                    <td class="settlement_td" width="250">{{ bank_sum }} 원</td>
+                </tr>
+            </table>
+            </div>
+            <br>
+            <div>
+            <h4>카드결제 내역</h4>
+            <table class="settlement" style="border-collapse:collapse; border:1px gray solid;">
+                <tr class="settlement_tr">
+                    <th class="settlement_th" width="190">주문번호</th>
+                    <th class="settlement_th" width="150">결제금액</th>
+                </tr>
+                {% for data in card %}
+                <tr class="settlement_tr">
+                    <td class="settlement_td" width="190">{{ data.order_num }}</td>
+                    <td class="settlement_td" width="250">{{ data.purchased_price }} 원</td>
+                </tr>
+                {% endfor %}
+                <tr class="settlement_tr">
+                    <th class="settlement_td" width="190">합계</th>
+                    <td class="settlement_td" width="250">{{ card_sum }} 원</td>
+                </tr>
+            </table>
+            </div>
+            </div>
+            <hr>
+            <h4>정산금액</h4>
+            <p>총 합계 {{ sum }} 원 - 수수료 (10%) {{ commission }} 원 = 정산 후 금액 {{ result }} 원 </p>
+        </div>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+<script>
+  document.getElementById('currnetMonth').value= new Date().toISOString().slice(0, 7);
+</script>
+
+{% endblock body %} 

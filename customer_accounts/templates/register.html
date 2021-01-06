@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/accounts.css' %}">
+{% endblock head %}
+
+{% block title %}
+사용자 회원가입 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div style="margin-top:100px;">
+        <div class="card">
+          <h4 class="card-header">사용자 회원가입</h4>
+        <div class="card-body">
+        <div class="text-center">
+            {% if messages %}
+                {% for message in messages %}
+                  <p style="color:red"> {{message.message}} </p>
+                {% endfor %}
+            {% endif %}
+          <img class="" src="">
+        </div>
+        <form class="mt-3" method="post" action='{% url "customer_accounts:register" %}'>{% csrf_token %}
+            <div class="form-group">
+              <input type="text" class="form-control" id="name" name="name" placeholder="성명" required>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="user_id" name="user_id" placeholder="사용자 ID" required>
+            </div>
+            <div class="form-group">
+              <input type="password" class="form-control" id="user_pw" name="user_pw" placeholder="비밀번호" required>
+            </div>
+            <div class="form-group">
+              <input type="password" class="form-control" id="user_2nd_pw" name="user_2nd_pw" placeholder="비밀번호 재입력" required>
+            </div>
+            <div class="form-group">
+              <input type="email" class="form-control" id="e_mail" name="e_mail" placeholder="E-Mail" required>
+            </div>
+            <div class="form-group">
+              <input type="tel" class="form-control" id="p_number" name="p_number"
+                     pattern="(010)-\d{3,4}-\d{4}" placeholder="휴대전화 ex) 010-1234-1234" required>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="address" name="address" placeholder="주소">
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="alert('회원가입을 완료하시겠습니까?')">회원가입</button>
+        </form>
+        </div>
+        </div>
+        <div class="card mt-2">
+        <div class="text-center mt-3">
+          <p>이미 계정이 있으신가요? <a href='{% url "customer_accounts:login" %}'>로그인</a></p>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    window.onpageshow = function(event) {
+        if ( event.persisted || (window.performance && window.performance.navigation.type == 2)) {
+            // Back Forward Cache로 브라우저가 로딩될 경우 혹은 브라우저 뒤로가기 했을 경우
+            alert('제출 양식이 만료되었습니다.');
+            history.back();
+        }
+    }
+</script>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+{% endblock body %}

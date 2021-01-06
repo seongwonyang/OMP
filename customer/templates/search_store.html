@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/search_store.css' %}">
+{% endblock head %}
+
+{% block title %}
+서점 검색 페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="tab_wrap">
+        <div class="tab_menu_container">
+            <button class="tab_menu_btn on" type="button">지역 검색</button>
+            <button class="tab_menu_btn" type="button">이름 검색</button>
+        </div> <!-- tab_menu_container e -->
+
+        <div class="tab_box_container">
+            <div class="container">
+                <div class="flex">
+                    <div class="flex-2">
+                    <div class="aside">
+                        <div class="tab_box on">{% include 'region_search.html' %}</div>
+                        <div class="tab_box">{% include 'name_search.html' %}</div>
+                    </div>
+                    {% for store in liststores %}
+                        <div class="list">
+                            <a href="{% url 'customer:bookstore_detail' store.store_id %}" >
+                                <h4>{{store.store_name}}</h4>
+                            <p>{{store.address}}</p>
+                            </a>
+                        </div>
+                    {% endfor %}
+                    </div>
+                    <div class="content">
+                        <div id="map" style="width:600px;height:500px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- tab_box_container e -->
+    </div> <!-- tab_wrap e -->
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $('.tab_menu_btn').on('click',function(){
+  //버튼 색 제거,추가
+  $('.tab_menu_btn').removeClass('on');
+  $(this).addClass('on')
+
+  //컨텐츠 제거 후 인덱스에 맞는 컨텐츠 노출
+  var idx = $('.tab_menu_btn').index(this);
+
+  $('.tab_box').hide();
+  $('.tab_box').eq(idx).show();
+});
+</script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=cfacabfc5f96f254fc0b914865f6055b&libraries=services"></script>
+<script type="text/javascript">
+    // 지도를 표시할 div
+    var mapContainer = document.getElementById('map'),
+        mapOption = {
+            center: new kakao.maps.LatLng(35.9284073, 127.5782672),
+            level: 14
+        };
+
+    // 지도를 생성합니다
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+
+    // 서버에서 받은 서점 주소 데이터로 좌표 검색
+    var bookstores = {{bookstores|safe}};
+
+    var geocoder = new kakao.maps.services.Geocoder();
+
+    var positions = [];
+
+    bookstores.forEach(function(element) {
+        var bookstore = JSON.parse(element);
+        var row;
+
+        // 주소로 좌표를 검색합니다
+        geocoder.addressSearch(bookstore['address'], function(result, status) {
+            // 정상적으로 검색이 완료됐으면
+             if (status === kakao.maps.services.Status.OK) {
+                  row = {
+                            title: bookstore['store_name'],
+                            latlng: new kakao.maps.LatLng(result[0].y, result[0].x)
+                        };
+                  positions.push(row);
+             }
+        });
+    });
+
+
+    setTimeout(function() {
+        // 마커 이미지의 이미지 주소입니다
+        var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+        var i;
+
+        for (var i = 0; i < positions.length; i ++) {
+
+            // 마커 이미지의 이미지 크기 입니다
+            var imageSize = new kakao.maps.Size(24, 35);
+
+            // 마커 이미지를 생성합니다
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+            // 마커를 생성합니다
+            var marker = new kakao.maps.Marker({
+                map: map, // 마커를 표시할 지도
+                position: positions[i].latlng, // 마커를 표시할 위치
+                title : positions[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+                image : markerImage // 마커 이미지
+            });
+        }
+    }, 2000);
+
+</script>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+
+{% endblock body %}

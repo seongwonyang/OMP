@@ -1,0 +1,38 @@
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/_nav.css' %}">
+{% endblock head %}
+<header>
+  <nav class="navbar  navbar-fixed-top navbar-default">
+    <div class="container">
+      <div class="collapse navbar-collapse" id="navbar-collapse-uarr" >
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="{% url 'seller:main' %}" title="" class="active">판매자 홈</a></li>
+          {% if user.is_authenticated %}
+          <li><a href="{% url 'seller:product_register' %}" title="">상품등록</a></li>
+          <li><a href="{% url 'seller:order_check' %}" title="">주문확인 요청</a></li>
+          <li><a href="{% url 'seller:product_list' %}" title="">상품 및 재고 관리</a></li>
+          <li><a href="{% url 'seller:delivery_check' %}" title="">배송관리</a></li>
+          <li><a href="{% url 'seller:settlement_check' %}" title="">정산조회</a></li>
+          <li><a href="{% url 'seller:order_return' 'all' %}" title="">반품관리</a></li>
+          {% endif %}
+          {% if user.is_authenticated and user.user_type == 3 %}
+          <li><a href="{% url 'seller_accounts:seller_info' %}" title="">마이페이지</a></li>
+            <li>
+              <p>
+                <a href="{% url 'customer_accounts:logout' %}" class="btn btn-primary navbar-btn" title="">로그아웃</a>
+              </p>
+            </li>
+          {% else %}
+            <li>
+              <p>
+                <a href="{% url 'seller_accounts:seller_login' %}" class="btn btn-primary navbar-btn" title="">로그인</a>
+              </p>
+            </li>
+          {% endif %}
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>

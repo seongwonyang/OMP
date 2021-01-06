@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mypage.css' %}">
+{% endblock head %}
+
+{% block title %}
+마이페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+<div class="tab_wrap">
+  <div class="tab_menu_container">
+    <button class="tab_menu_btn on" type="button" onclick="location.href='{% url 'customer:mypage' %}'">주문확인/배송조회</button>
+    <button class="tab_menu_btn" type="button">장바구니</button>
+    <button class="tab_menu_btn" type="button">마이리스트</button>
+    <button class="tab_menu_btn" type="button" onclick="location.href='{% url 'customer_accounts:password_check' %}'" >회원정보</button>
+  </div> <!-- tab_menu_container e -->
+
+  <div class="tab_box_container">
+    <div class="tab_box on">
+      <div class="card">
+        <table>
+          <tr>
+            <th>주문번호</th>
+            <td colspan="3">{{order_detail.order_num}}</td>
+          </tr>
+          <tr>
+            <th>주문일</th>
+            <td>{{order_detail.buy_date}}</td>
+          </tr>
+        </table>
+<br>
+        <table>
+          <tr>
+            <th>주문하신 분</th>
+            <td>{{order_detail.user_name}}</td>
+            <th>받으시는 분</th>
+            <td>{{order_detail.order_name}}</td>
+          </tr>
+          <tr>
+            <th>배송 주소</th>
+            <td colspan="3">{{order_detail.order_address}}</td>
+          </tr>
+          <tr>
+            <th>휴대번호</th>
+            <td>{{order_detail.order_p_num}}</td>
+            <th>배송메시지</th>
+            <td>{{order_detail.order_memo}}</td>
+          </tr>
+        </table>
+<br>
+<h4>주문 상품 정보</h4>
+        {% for book in products %}
+        <table width="650px;" height="120px">
+            <tr>
+                <td rowspan="2"><img src="{{ book.book_img }}" width="75px" height="100px"></td>
+                <td width="200">상품명</td>
+                <td width="90">구매가격</td>
+                <td width="100">수량</td>
+                <td width="180">서점</td>
+                <td width="120">배송 상태</td>
+            </tr>
+            <tr>
+                <td width="200">{{book.book_name}}</td>
+                <td width="90">{{book.price}}원</td>
+                <td width="100">{{book.quantity}}</td>
+                <td width="180">{{book.store_name}}</td>
+                <td width="140">{{book.order_status}}</td>
+                {% if book.order_status == "배송 완료" or book.order_status == "구매확정" and book.return_possible == 1 %}
+                    <td width="60"><button class="order_confirm_button1" type="button" onclick="location.href='{% url 'customer:product_return' book.order_product_id %}'">반품신청</button></td>
+                {% else %}
+                    <td width="60"><button class="none_button" onclick="#"></button></td>
+                {% endif %}
+            </tr>
+        </table>
+        {% endfor %}
+          <br>
+          {% if is_return_reject == 1 %}
+            <table>
+                <tr>
+                    <td width="120px" style="font-weight:bold">책 이름</td>
+                    <td style="font-weight:bold; margin-left: 100px">환불 거절사유</td>
+                </tr>
+                {% for data in return_reject_info %}
+                    <tr>
+                        <td style="margin-right:50px">{{data.book_name}}</td>
+                        {% if data.reject_reason != None %}
+                        <td>{{data.reject_reason}}</td>
+                        {% elif data.reject_reason == None %}
+                        <td style="color:red">답변 미완료</td>
+                        {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+            <br>
+          {% endif %}
+        <table>
+          <tr>
+            <th>총 주문 금액</th>
+            <td>{{order_detail.price}}원</td>
+          </tr>
+          <tr>
+            <th>결제 방법</th>
+            <td>{% if order_detail.payment == 'bank' %}
+              무통장 입금
+            {% else %}
+              카드 결제
+          {% endif %}</td>
+          </tr>
+        </table>
+            {% if order_status == "결제 대기중" or order_status == "결제 완료" %}
+                <br><button class="order_confirm_button1" onclick="order_cancel(this, '{{ order_detail.order_num }}')">결제취소</button>
+            {% endif %}
+      {% if order_detail.payment == 'bank' %}
+              <hr>
+              <h4>무통장 입금 정보</h4>
+              <h5>{{order_detail.due_date}}까지 입금해주세요</h5>
+              {% for info in account_info %}
+              <table>
+                <tr>
+                    <td width="100">서점</td>
+                    <td width="100">총 가격</td>
+                    <td width="60">은행</td>
+                    <td width="130">계좌</td>
+                </tr>
+                <tr>
+                    <td width="100">{{info.store_name}}</td>
+                    <td width="100">{{info.price}}원</td>
+                    <td width="60">{{info.bank}}</td>
+                    <td width="130">{{info.account}}</td>
+                </tr>
+              </table>
+              {% endfor %}
+          {% else %}
+          {% endif %}
+      </div>
+    </div>
+    <div class="tab_box">{% include 'book_basket.html' %}</div>
+    <div class="tab_box">{% include 'mylist.html' %}</div>
+  </div> <!-- tab_box_container e -->
+</div> <!-- tab_wrap e -->
+
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $('.tab_menu_btn').on('click',function(){
+      //버튼 색 제거,추가
+      $('.tab_menu_btn').removeClass('on');
+      $(this).addClass('on')
+
+      //컨텐츠 제거 후 인덱스에 맞는 컨텐츠 노출
+      var idx = $('.tab_menu_btn').index(this);
+
+      $('.tab_box').hide();
+      $('.tab_box').eq(idx).show();
+    });
+
+    function order_cancel(elm, n){
+        if (confirm("결제를 취소하시겠습니까?") == true){
+            location.href = "/order-cancel/" + n;
+        }else{
+            alert('취소되었습니다.');
+            event.preventDefault();
+        }
+    }
+
+</script>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+{% endblock body %}

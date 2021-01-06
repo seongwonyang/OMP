@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/store_detail.css' %}">
+{% endblock head %}
+
+{% block title %}
+서점 상세 페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+<div class="background-image-container">
+    <div class="flex">
+        <div class="col col1">
+            <div class="image round fit">
+                {% if store.store_img == None %}
+                <img src="{% static 'images/bookstore_icon.png' %}">
+                {% else %}
+                <img src="{{ store.store_img }}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col col2">
+            <div class="flex-2">
+                <h3>{{ store.store_name }}</h3>
+                {% if user.is_authenticated %}
+                {% if is_favorite == False %}
+                <i class="far fa-star fa-2x" title="즐겨찾기" onclick="favorite(this, '{{store.store_id}}')"></i>
+                {% elif is_favorite == True %}
+                <i class="fas fa-star fa-2x" title="즐겨찾기" onclick="unfavorite(this, '{{store.store_id}}')"></i>
+                {% endif %}
+                {% endif %}
+            </div>
+            <p>주소 | {{ store.address }}<br>
+                번호 | {{ store.store_num }}<br>
+                소개 | {{ store.store_msg }}<br></p>
+            <button style="font-weight:bold; font-size:20px; margin-left:-10px" onclick="location.href='{% url 'customer:frequent_question' store.store_id %}'">▶ 1:1 문의하기</button>
+        </div>
+    </div>
+</div>
+    <div class="notice" align="center">
+        <table>
+            <tr>
+                <th width="600">공지사항</th>
+                <th width="200">게시 날짜</th>
+            </tr>
+        {% for notice in notices %}
+            <tr>
+                <td width="600">{{notice.notice}}</td>
+                <td width="200">{{notice.date}}</td>
+            </tr>
+       {% endfor %}
+        </table>
+    </div>
+    <div class="search" align="center">
+        <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "customer:search_book_in_store" %}'>{% csrf_token %}
+            <label for="search_book">"{{ store.store_name }}"에서 찾고싶은 책을 검색해보세요</label><br>
+            <input id="search_book" type="text" name="search_book" value="{{search_book}}" size="35" placeholder="책 제목이나 작가이름이면 충분해요">
+            <input type="hidden" name="store_id" value="{{store.store_id}}">
+            <button class="btn btn-primary" type="submit">검색</button>
+            {% if messages %}
+                {% for message in messages %}
+                  <p style="color:red"> {{message.message}} </p>
+                {% endfor %}
+            {% endif %}
+        </form>
+    </div>
+    {% if tab == 'search_book' %}
+    <div class="content">
+        <a href="{% url 'customer:bookstore_detail' store.store_id %}" >전체 책 보기</a>
+        {% for book in books %}
+                <div class="col">
+                    <a href="{% url 'customer:book_detail' book.isbn book.store_id %}" >
+                    <div class="image book">
+                        <img align="center" src="{{ book.book_img }}" alt="" />
+                    </div>
+                    <p>{{ book.book_name }}</p>
+                    <p>{{ book.author }}</p>
+                    <p>{{ book.price }}원</p>
+                    </a>
+                </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <hr width="60%">
+    <h3 align="center">인기가 많아요</h3>
+    <div class="content">
+        {% for book in like_books %}
+                <div class="col">
+                    <a href="{% url 'customer:book_detail' book.isbn book.store_id %}" >
+                    <div class="image book">
+                        <img align="center" src="{{ book.book_img }}" alt="" />
+                    </div>
+                    <p>{{ book.book_name }}</p>
+                    <p>{{ book.author }}</p>
+                    <p>{{ book.price }}원</p>
+                    </a>
+                </div>
+        {% endfor %}
+    </div>
+    <hr>
+    <h3 align="center">새로 들어왔어요</h3>
+    <div class="content">
+        {% for book in lately_books %}
+                <div class="col">
+                    <a href="{% url 'customer:book_detail' book.isbn book.store_id %}" >
+                    <div class="image book">
+                        <img align="center" src="{{ book.book_img }}" alt="" />
+                    </div>
+                    <p>{{ book.book_name }}</p>
+                    <p>{{ book.author }}</p>
+                    <p>{{ book.price }}원</p>
+                    </a>
+                </div>
+        {% endfor %}
+    </div>
+    <hr>
+    <div class="content">
+        {% for book in books %}
+                <div class="col">
+                    <a href="{% url 'customer:book_detail' book.isbn book.store_id %}" >
+                    <div class="image book">
+                        <img align="center" src="{{ book.book_img }}" alt="" />
+                    </div>
+                    <p>{{ book.book_name }}</p>
+                    <p>{{ book.author }}</p>
+                    <p>{{ book.price }}원</p>
+                    </a>
+                </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function favorite(elm, n){
+        $.ajax({
+            url: "{% url 'customer:favorite' 1 %}".replace('1', n),
+            data: {'csrfmiddlewaretoken': '{{ csrf_token }}'},
+            dataType: "json",
+            type: "POST",
+            success: function(response){
+               $(elm).attr("class", "fas fa-star fa-2x");
+               $(elm).attr("onclick", "unfavorite(this, '" + n + "')");
+            },
+            error: function(xhr) {
+                    alert("즐겨찾기를 하는 과정에서 에러가 발생했습니다.");
+            }
+        });
+    }
+    function unfavorite(elm, n){
+        $.ajax({
+            url: "{% url 'customer:unfavorite' 1 %}".replace('1', n),
+            data: {'csrfmiddlewaretoken': '{{ csrf_token }}',},
+            dataType: "json",
+            type: "POST",
+            success: function(response){
+               $(elm).attr("class", "far fa-star fa-2x");
+               $(elm).attr("onclick", "favorite(this, '" + n + "')");
+            },
+            error: function(xhr) {
+                    alert("즐겨찾기를 취소하는 과정에서 에러가 발생했습니다.");
+            }
+        });
+    }
+
+</script>
+
+{% endblock body %}

@@ -1,0 +1,47 @@
+<form class="mt-3" method="post" enctype="multipart/form-data" action="{% url 'customer:order_sheet_cart' %}">{% csrf_token %}
+    <input type="checkbox" name="all" class="check-all"> <label>전체 선택</label>
+    <div class="row justify-content-center align-items-center">
+        {% for data in request.session.user_basket %}
+        <div style="margin-top:70px;" class="basket">
+                <input type="checkbox" name="cart" class="ab" value="{{data.store_id}},{{data.isbn}},{{ data.quantity }}">&nbsp;&nbsp;
+                <img width="160" height="220" src="{{ data.book_img }}" onclick="location.href='{% url 'customer:book_detail' data.isbn data.store_id %}'">
+                <table class="basket_table" style="text-align:center; height:60px">
+                    <tr class="basket_tr">
+                        <td class="basket_td1"><p class="content_title">상품명</p></td>
+                        <td class="basket_td"><a class="content" href="{% url 'customer:book_detail' data.isbn data.store_id %}">{{ data.book_name }}</a></td>
+                    </tr>
+                    <tr class="basket_tr">
+                        <td class="basket_td1"><p class="content_title">가격</p></td>
+                        <td class="basket_td"><p class="content">{{ data.price }}원</p></td>
+                    </tr>
+                    <tr class="basket_tr">
+                        <td class="basket_td1"><p class="content_title">출판사</p></td>
+                        <td class="basket_td"><p class="content">{{ data.publisher }}</p></td>
+                    </tr>
+                    <tr class="basket_tr">
+                        <td class="basket_td1"><p class="content_title">판매서점</p></td>
+                        <td class="basket_td"><a class="content" href="{% url 'customer:bookstore_detail' data.store_id %}">{{ data.store_name }}</a></td>
+                    </tr>
+                    <tr class="basket_tr">
+                        <td class="basket_td1"><p class="content_title">수량</p></td>
+                        <td class="basket_td"><p class="content">{{ data.quantity }}</p></td>
+                    </tr>
+                </table>
+                <div align="right">
+                <button class="delete_button" type="button" class="button" onclick="location.href = '{% url 'customer:book_basket_delete' data.isbn %}'">삭제</button>
+                </div>
+        </div>
+        <hr>
+        {% endfor %}
+        <button class="order_button" type="submit" class="button">구매하기</button>
+    </div>
+</form>
+<script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+      $( document ).ready( function() {
+        $( '.check-all' ).click( function() {
+          $( '.ab' ).prop( 'checked', this.checked );
+        } );
+      } );
+
+    </script>

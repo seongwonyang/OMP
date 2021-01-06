@@ -1,0 +1,42 @@
+{% load static %}
+    <div class="tabmenu">
+      <ul>
+        <li id="tab1" class="btnCon"> <input type="radio" checked name="tabmenu" id="tabmenu1">
+          <label for="tabmenu1">즐겨찾기 서점</label>
+          <div class="tabCon" >
+              <div class="flex">
+              {% for store in favorite_stores %}
+                        <a href="{% url 'customer:bookstore_detail' store.store_id %}" >
+                            <div class="image round fit">
+                                {% if store.store_img == None %}
+                                <img src="{% static 'images/bookstore_icon.png' %}">
+                                {% else %}
+                                <img src="{{ store.store_img }}">
+                                {% endif %}
+                            </div>
+                        <p style="font-weight:bold" align="center">{{ store.store_name }}</p>
+                        </a>
+              {% endfor %}
+              </div>
+          </div>
+        </li>
+
+        <li id="tab2" class="btnCon"><input type="radio" name="tabmenu" id="tabmenu2">
+          <label for="tabmenu2">찜한 책</label>
+          <div class="tabCon" >
+              <div class="flex">
+              {% for book in like_books %}
+                  <div class="like_list">
+                        <a href="{% url 'customer:book_detail' book.isbn book.store_id %}" >
+                        <div class="image book">
+                            <img align="center" src="{{ book.book_img }}" alt="" />
+                        </div>
+                        <p style="font-weight:bold;" align="center">{{ book.book_name }}<br>{{ book.store_name }}</p>
+                        </a>
+                  </div>
+              {% endfor %}
+              </div>
+          </div>
+        </li>
+      </ul>
+    </div>

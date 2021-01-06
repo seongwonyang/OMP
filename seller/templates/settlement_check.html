@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/order.css' %}">
+{% endblock head %}
+
+{% block title %}
+정산 관리 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div align="center" style="margin-top:100px;">
+            <table class="order_history">
+                <tr class="order_history_tr">
+                    <th class="order_history_th" width="190">주문번호</th>
+                    <th class="order_history_th" width="250">주문날짜</th>
+                    <th class="order_history_th" width="150">결제금액</th>
+                    <th class="order_history_th" width="100">
+                        <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "seller:settlement_check" %}'>{% csrf_token %}
+                              <select id="settlement_status" name="settlement_status">
+                                <option value="">정산 상태별</option>
+                                <option value="구매 확정">구매 확정</option>
+                                <option value="정산 대기">정산 대기</option>
+                                <option value="정산 완료">정산 완료</option>
+                              </select>
+                            <button class="btn btn-primary" type="submit">조회</button>
+                        </form>
+                    </th>
+                </tr>
+                {% for data in settlement_info %}
+                <tr class="order_history_tr">
+                    <td class="order_history_td" width="190">{{ data.order_num }}</a></td>
+                    <td class="order_history_td" width="100">{{ data.buy_date }}</td>
+                    <td class="order_history_td" width="250">{{ data.purchased_price }} 원</td>
+                    <td class="order_history_td" width="250">{{ data.settlement_status }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+
+
+</script>
+
+{% endblock body %}

@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/review.css' %}">
+{% endblock head %}
+
+{% block title %}
+리뷰 관리 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="flex">
+            <div align="center">
+                <h3>총 평점 평균</h3>
+                <hr>
+                <b style="color:gold; align:right; font-size:30px;">
+                        {% if avg.star == 2 or avg.star == 1 %}★☆☆☆☆
+                        {% elif avg.star == 4 or avg.star == 3 %}★★☆☆☆
+                        {% elif avg.star == 6 or avg.star == 5 %}★★★☆☆
+                        {% elif avg.star == 8 or avg.star == 7 %}★★★★☆
+                        {% elif avg.star == 10 or avg.star == 9 %}★★★★★
+                        {% endif %}
+                    </b>
+                <h4>{{ avg.avg }}</h4>
+            </div>
+            <div>
+                <h3 align="center">BEST 3</h3>
+                {% for best in best %}
+                <hr>
+                <h4>{{ best.rank }}</h4>
+                <div class="flex">
+                    <img class="img" src="{{best.book_img}}">
+                    <div class="flex-2" align="center">
+                    <p>{{ best.book_name }}</p>
+                    <p>평점 {{ best.avg }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div>
+                <h3 align="center">WORST 3</h3>
+                {% for worst in worst %}
+                <hr>
+                <h4>{{ worst.rank }}</h4>
+                <div class="flex">
+                    <img class="img" src="{{worst.book_img}}">
+                    <div class="flex-2" align="center">
+                    <p>{{ worst.book_name }}</p>
+                    <p>평점 {{ worst.avg }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="top" style="height:100px;">
+        </div>
+<hr>
+        <h3>리뷰 최신순</h3>
+        {% for review in lately_review %}
+        <div>
+            <div class="review">
+                <p>{{ review.title }}</p>
+                <b style="color:gold; align:right" id="review_score" name="review_score" >
+                    {% if review.evaluate_score == 2 %}★☆☆☆☆
+                    {% elif review.evaluate_score == 4 %}★★☆☆☆
+                    {% elif review.evaluate_score == 6 %}★★★☆☆
+                    {% elif review.evaluate_score == 8 %}★★★★☆
+                    {% elif review.evaluate_score == 10 %}★★★★★
+                    {% endif %}
+                </b>
+                <p>{{ review.user_id }}</p>
+                <p>{{ review.date }}</p>
+            </div>
+            <p> {{ review.content }} </p>
+            {% if review.answer == None %}
+            <button class="button" onclick="modal(this)" type="button">답변 달기</button>
+            {% else %}
+            <p style="margin-left:50px;">→ 답변: {{ review.answer }}</p>
+            <button class="button" onclick="modify(this, '{{ review.id }}')" type="button">수정</button>
+            {% endif %}
+            <div>
+                <div id="modal" class="modal">
+                    <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "seller:review_answer" %}'>{% csrf_token %}
+                        <textarea cols="50" rows="3" id="answer" name="answer" placeholder="리뷰에 대한 답변을 달아주세요"></textarea>
+                        <input type="hidden" id="review_id" name="review_id" value="{{ review.id }}">
+                        <button class="button-2" type="submit">작성</button>
+                    </form>
+                    <button class="button" onclick="closeModal()" type="button">닫기</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <a class="top" href="#top">TOP</a>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+function modal(elm) {
+    $(elm).parent().children().children().show();
+}
+
+function closeModal() {
+    $('.modal').hide();
+};
+
+function modify(elm, n) {
+    $.ajax({
+        url: "{% url 'seller:answer_modify_ajax' 1 %}".replace("1",n),
+        data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+            $(elm).next().children().children().children().val(response.answer_info.answer);
+            $(elm).next().children().children().children().next().attr('value',response.answer_info.id);
+            $(elm).parent().children().children().show();
+        },
+        error: function(request,status,error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    });
+
+}
+</script>
+
+{% endblock body %}

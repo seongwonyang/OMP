@@ -1,0 +1,12 @@
+/* table */
+.settlement {
+    border: 1px solid #c5c5f1;
+    border-collapse: collapse;
+  }
+  .settlement_th, .settlement_td {
+    border: 1px solid #c5c5f1;
+    padding: 8px;
+  }
+  .settlement_th {
+    background-color: #E6E6FA;
+  }

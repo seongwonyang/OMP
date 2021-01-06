@@ -1,0 +1,58 @@
+
+<div align="center">
+    <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "customer:order_history" %}'>{% csrf_token %}
+        <label for="order_num">주문번호</label>
+        <input id="order_num" type="textarea" name="order_num" value="{{order_num}}">
+        <input type="month" id="currnetMonth" name="date">
+        <label for="order_status">배송 상태별</label>
+          <select id="order_status" name="order_status">
+            <option value="">전체 보기</option>
+            <option value="결제 대기중">결제 대기중</option>
+            <option value="결제 완료">결제 완료</option>
+            <option value="배송 준비">배송 준비</option>
+            <option value="배송 중">배송 중</option>
+            <option value="배송 완료">배송 완료</option>
+            <option value="cancel_refund">취소/환불</option>
+          </select>&nbsp;
+        <button class="btn btn-primary" type="submit">조회</button>
+    </form>
+    <hr>
+    <table class="order_history">
+        <tr class="order_history_tr">
+            <th class="order_history_th" width="190">주문일</th>
+            <th class="order_history_th" width="190">주문번호</th>
+            <th class="order_history_th" width="100">수령인</th>
+            <th class="order_history_th" width="250">주문상품</th>
+            <th class="order_history_th" width="100" style="text-align:center">배송상태</th>
+            <th class="order_history_th" width="100" style="text-align:center">구매확정</th>
+        </tr>
+        {% for goods in order_history %}
+        <tr class="order_history_tr">
+            <td class="order_history_td" width="190">{{goods.buy_date}}</td>
+            <td class="order_history_td" width="190"><a id="order_decision_num" name="order_decision_num" href="{% url 'customer:order_detail' goods.order_num %}" >{{goods.order_num}}</a></td>
+            <td class="order_history_td" width="100">{{goods.order_name}}</td>
+            {% if goods.book_count == 1 %}
+            <td class="order_history_td" width="250"><p>{{goods.book_name}}</p>
+            {% else %}
+            <td class="order_history_td" width="250"><p>{{goods.book_name}} 외 총 {{goods.book_count}}권</p>
+            {% endif %}
+            <p>총 가격 {{goods.sum_price}}원</p></td>
+            {% if goods.order_status == "구매확정" %}
+            <td class="order_history_td" width="100" style="text-align:center"><b style="color:blue">{{goods.order_status}}</b></td>
+            {% else %}
+                <td class="order_history_td" width="100" style="text-align:center">{{goods.order_status}}</td>
+            {% endif %}
+            {% if goods.order_status == "배송 완료" %}
+                <td class="order_history_td" width="100" style="text-align:center">
+                    <button class="order_confirm_button1" onclick="order_decision(this, '{{ goods.order_num }}')">구매확정</button>
+                </td>
+            {% elif goods.order_status == "구매확정" %}
+            <td class="order_history_td" width="100" style="text-align:center"><b style="color:blue">수령완료</b></td>
+            {% else %}<td class="order_history_td" width="100" style="text-align:center">미수령</td>{% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<script>
+  document.getElementById('currnetMonth').value= new Date().toISOString().slice(0, 7);
+</script>

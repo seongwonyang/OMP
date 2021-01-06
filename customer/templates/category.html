@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/category.css' %}">
+{% endblock head %}
+
+{% block title %}
+책 카테고리 페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+<div class="tabmenu">
+    <ul>
+        <li id="tab1" class="btnCon"> <input type="radio" checked name="tabmenu" id="tabmenu1">
+          <label for="tabmenu1">국내도서</label>
+          <div class="tabCon" >
+                  <div class="aside">
+                      {% for main in domestic %}
+                        <a href="{% url 'customer:category_book' main.main_category_id %}" >
+                            <div>{{main.main_category}}</div>
+                        </a>
+                      {% endfor %}
+                  </div>
+
+              <div class="content-2">
+                  <div class="flex-book">
+                    {% for book in domestic_books %}
+                      <div class="col">
+                          <button onclick="location.href='/book-list/?title={{ book.book_name }}&publisher={{ book.publisher }}&author={{ book.author }}'">
+                              <div class="image book">
+                                  <img align="center" src="{{ book.book_img }}" alt="" />
+                              </div>
+                                <input class="input_box" id="title" name="title" value="{{ book.book_name }}"><br><br>
+                                <input class="input_box" id="publisher" name="publisher" value="{{ book.publisher }}"><br>
+                                <input class="input_box" id="author" name="author" value="{{ book.author }}">
+                          </button>
+                      </div>
+                    {% endfor %}
+                  </div>
+              </div>
+          </div>
+        </li>
+        <li id="tab2" class="btnCon"><input type="radio" name="tabmenu" id="tabmenu2">
+          <label for="tabmenu2">외국도서</label>
+          <div class="tabCon" >
+                  <div class="aside">
+              {% for main in foreign %}
+                <a href="{% url 'customer:category_book' main.main_category_id %}" >
+                    <div>{{main.main_category}}</div>
+                </a>
+              {% endfor %}
+                  </div>
+              <div class="flex-book">
+                {% for book in foreign_books %}
+                  <div class="col">
+                          <button onclick="location.href='/book-list/?title={{ book.book_name }}&publisher={{ book.publisher }}&author={{ book.author }}'">
+                              <div class="image book">
+                                  <img align="center" src="{{ book.book_img }}" alt="" />
+                              </div>
+                                <input class="input_box" id="title" name="title" value="{{ book.book_name }}"><br><br>
+                                <input class="input_box" id="publisher" name="publisher" value="{{ book.publisher }}"><br>
+                                <input class="input_box" id="author" name="author" value="{{ book.author }}">
+                          </button>
+                      </div>
+
+                {% endfor %}
+              </div>
+          </div>
+        </li>
+    </ul>
+</div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+</script>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+{% endblock body %}

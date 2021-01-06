@@ -1,0 +1,29 @@
+tr{
+    align:center;
+}
+td{
+    align:center;
+}
+.flex-order{
+    display:flex;
+    flex-direction:column;
+
+}
+section{
+    display:none;
+}
+
+label{
+    display:inline-block;
+}
+#default:checked ~ #content1,
+#new:checked ~ #content2 {
+    display:block;
+}
+
+.card{
+    border: 1px solid #c7c7c7;
+    background-color: #fafafa;
+    width:600px;
+    height: auto;
+}

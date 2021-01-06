@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mypage.css' %}">
+{% endblock head %}
+
+{% block title %}
+반품신청 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="card_container">
+    <div class="row justify-content-center align-items-center">
+        <div style="margin-top:100px;">
+        <div class="card2">
+          <h4 class="card-header">반품신청</h4>
+        <div class="card-body">
+        <div class="text-center">
+          <img class="" src="">
+        </div>
+        <form class="mt-3" method="post" name="return" id="return" action="{% url 'customer:product_return' order_id %}" enctype="multipart/form-data">{% csrf_token %}
+            <div class="form-group">
+              <label>상품 이름</label>
+                <input type="text" class="form-control" id="book_name" name="book_name" value="{{ order_info.book_name }}" readonly>
+            </div>
+            <div class="form-group">
+              <label>구매 서점</label>
+                <input type="text" class="form-control" id="bookstore" name="bookstore" value="{{ order_info.bookstore }}" readonly>
+            </div>
+            <div class="form-group">
+              <label>환불받을 금액</label>
+                <input type="text" class="form-control" id="price" name="price" placeholder="{{ order_info.price }}" readonly>
+            </div>
+            <div class="form-group">
+              <label>반품 사유</label><br>
+                <label><input class="radio-value" type="radio" name="return_msg" value="불량품" required>불량품</label>&nbsp;
+                <label><input class="radio-value" type="radio" name="return_msg" value="파손제품" required>파손제품</label>&nbsp;
+                <label><input class="radio-value" type="radio" name="return_msg" value="실수로 구매함" required>실수로 구매함</label>&nbsp;
+                <label><input class="radio-value" type="radio" name="return_msg" value="직접입력" required>직접입력</label>
+                <textarea type="text" class="form-control" id="direct_msg" name="direct_msg" placeholder="" rows="5" disabled></textarea>
+            </div><br>
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                  <span class="input-group-text" id="inputGroupFileAddon01"><b>상품 이미지</b></span>
+              </div>
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="product_img" name="product_img" aria-describedby="inputGroupFileAddon01" required>
+                <label class="custom-file-label" for="product_img">반품할 상품의 이미지를 업로드 해주세요.</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" onclick="return_confirm()">신청하기</button>
+        </form>
+        </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+    function return_confirm(){
+        if (confirm("반품신청을 완료하시겠습니까?") == true){
+            document.form.submit();
+        }else{
+            alert('취소되었습니다.');
+            event.preventDefault();
+        }
+    }
+
+    $('.radio-value').on('click', function() {
+        var thisForm = document.return;
+
+        var return_msg = thisForm.elements["return_msg"].value;
+
+        if (return_msg == '직접입력'){
+            $("#direct_msg").removeAttr("disabled");
+            $("#direct_msg").attr("required", "required");
+        }else{
+            $("#direct_msg").attr("disabled", "disabled");
+            $("#direct_msg").removeAttr("required", "required");
+        }
+    });
+</script>
+{% endblock body %}

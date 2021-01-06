@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/product_register.css' %}">
+{% endblock head %}
+
+{% block title %}
+상품 등록 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div style="margin-top:100px;">
+        <div class="card">
+          <h4 class="card-header">상품 등록</h4>
+        <div class="card-body">
+        <div class="text-center">
+          <img class="" src="">
+        </div>
+        <form class="mt-3" method="post" action="{% url 'seller:product_register' %}" enctype="multipart/form-data">{% csrf_token %}
+            <div class="form-group">
+                <button class="button" onclick="book_search()" type="button">책 찾기</button>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="book_name" name="book_name" placeholder="책 이름" required readonly>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="book_isbn" name="book_isbn" placeholder="ISBN 번호" required readonly>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="author" name="author" placeholder="작가" required readonly>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="publisher" name="publisher" placeholder="출판사" required readonly>
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control" id="inven" name="inven" placeholder="등록수량" required>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="price" name="price" placeholder="판매가격" required>
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" id="book_msg" name="book_msg" placeholder="책 소개" rows="5" required></textarea>
+            </div>
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="book_img" name="book_img" aria-describedby="inputGroupFileAddon01">
+                <label class="custom-file-label" for="book_img">책 사진을 업로드해주세요.</label>
+              </div><br>
+            <button type="submit" class="btn btn-primary" onclick="register_confirm()">상품 등록</button>
+        </form>
+        </div>
+        </div>
+        </div>
+
+        <div id="modal" class="searchModal">
+            <div class="search-modal-content">
+                <div class="page-header">
+                    <h1>현재 등록이 완료된 책을 검색합니다.</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form class="mt-3" name="search_form" method="GET" enctype="multipart/form-data" action="{% url 'seller:ajax_book_search' %}">
+                                    {% csrf_token %}
+                                    <div><input class="modal_input" id="search_book_name" name="search_book_name" type="text" placeholder="책 이름"></div><br>
+                                    <div><input class="modal_input" id="search_book_publisher" name="search_book_publisher" type="text" placeholder="출판사"></div><br>
+                                    <div><input class="modal_input" id="search_author" name="search_author" type="text" placeholder="작가 이름"></div>
+                                    {% if messages %}
+                                        {% for message in messages %}
+                                          <p style="color:red"> {{message.message}} </p>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <button type="button" class="button" onclick="search_result()">검색</button>
+                                </form><br>
+                                <div id="search_result" name="search_result">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;" onClick="closeModal();">
+                    <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+    function register_confirm(){
+        if (confirm("등록을 완료하시겠습니까?") == true){
+            document.form.submit();
+        }else{
+            alert('취소되었습니다.');
+            event.preventDefault();
+        }
+    }
+
+    function search_result(elm) {
+        var thisForm = $("form[name=search_form]").serialize();
+        $.ajax({
+            url: "{% url 'seller:ajax_book_search' %}",
+            data: thisForm,
+            dataType: "json",
+            type: "GET",
+            success: function(response) {
+                var total_result = "";
+
+                if (response.is_registered == 1){
+                    for(i=0; response.search_result.length; i++){
+                        var result = "";
+
+                        //같은 페이지로 submit 되어 무한루프로 요청이 반복되서 수동으로 빠져나오게 함.
+                        if(i==response.search_result.length){
+                            break;
+                        }
+
+                        var book_name = "<button name=\"form_input_button\" onclick=\"form_value(this, "+ i +")\"><p><b name=\"form_name\">" + response.search_result[i].book_name + "</b> (<b name=\"form_author\">" + response.search_result[i].author +"</b>)</p>";
+                        var isbn = "<p>ISBN : <b name=\"form_isbn\">" + response.search_result[i].isbn + "</b>  |  ";
+                        var publisher = "출판사 : <b name=\"form_publisher\">" + response.search_result[i].publisher + "</b></p></button><hr>";
+
+                        result = book_name + isbn + publisher;
+                        total_result += result;
+                    }
+                }else if (response.is_registered == 0) {
+                    total_result = "<b>검색하신 책의 정보가 존재하지 않습니다.</b>";
+                    total_result += "<p>관리자에게 도서등록을 요청한 후에 상품등록이 가능합니다. <a onclick=\"location.href='/seller/book-register/'\">[바로가기]</a></p>";
+                }else if (response.is_registered == -1){
+                    total_result = "<b>검색할 키워드를 입력해주세요.</b>";
+                }
+
+
+                $("#search_result").html(total_result);
+
+            },
+            error: function(request,status,error) {
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            },
+        });
+    }
+
+
+    //검색 결과중 하나를 누르면 그 값들을 폼 input value 삽입
+    function form_value(elm, n) {
+        $("#book_name").attr("value", document.getElementsByName('form_name')[n].innerText);
+        $("#book_isbn").attr("value", document.getElementsByName('form_isbn')[n].innerText);
+        $("#author").attr("value", document.getElementsByName('form_author')[n].innerText);
+        $("#publisher").attr("value", document.getElementsByName('form_publisher')[n].innerText);
+
+        $('.searchModal').hide();
+    }
+
+    function book_search() {
+        $("#modal").show();
+    }
+
+    function closeModal() {
+        $('.searchModal').hide();
+    };
+</script>
+
+{% endblock body %}

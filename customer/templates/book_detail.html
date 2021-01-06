@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/book_detail.css' %}">
+{% endblock head %}
+
+{% block title %}
+책 상세페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="text-center mt-3">
+        <h3>AlleyBookStore</h3>
+    </div>
+
+    <div class="result_box">
+
+    <div class="book_img" style="float:left">
+        <h3><img  src="{{ book.book_img }}" height="400" width="300"></h3>
+    </div>
+
+        <div class="book_content">
+            <p class="book_title"> {{ book.book_name }} </p>
+
+                <table width="900">
+                    <tr>
+                        <td>지은이</td>
+                        <td>{{ book.author }}</td>
+                    </tr>
+                    <tr>
+                        <td>출판사</td>
+                        <td>{{ book.publisher }}</td>
+                    </tr>
+                    <tr>
+                        <td>가격</td>
+                        <td>{{ book.price }} 원</td>
+                    </tr>
+                    <tr>
+                        <td>재고</td>
+                        <td>총 {{ book.book_inven }}권</td>
+                    </tr>
+                    <tr>
+                        <td>판매상태</td>
+                        <td>
+                            {% if book.book_inven != 0 %}
+                            구매가능
+                            {% else %}
+                            재고소진
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>판매서점</td>
+                        <td><a onclick="location.href='{% url 'customer:bookstore_detail' book.store_id %}'">{{book.store_name}}</a></td>
+                    </tr>
+                    <tr>
+                        <td>ISBN</td>
+                        <td>{{ book.isbn }}</td>
+                    </tr>
+                    <tr>
+                        <td>평점</td>
+                        <td>
+                            {% if book.review_score != None %}
+                            <b style="color:gold">{{ book.review_score }}</b> <a href="#review_list"> ({{book.review_count}}) </a>
+                            {% else %}
+                            <b style="color:gold">0</b> <a href="#review_list"> ({{book.review_count}}) </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <form class="mt-3" method="post" enctype="multipart/form-data">{% csrf_token %}
+                        <td>수량</td>
+                        <td><input type="number" name="quantity" min="1" max="{{ book.book_inven }}" value="0" required></td>
+                        <td>
+                            <button class="button" type="submit" formaction="{% url 'customer:order_sheet' book_isbn store_id %}">구매하기</button>
+                            <button class="button" type="submit" formaction="{% url 'customer:book_basket_insert' book.isbn book.store_id %}">장바구니</button>&nbsp;
+                        </form>
+                            {% if is_like == False %}
+                            <button class="like_button" onclick="like(this, '{{ book_isbn }}', '{{ store_id }}')">찜</button>
+                            {% endif %}
+                            {% if is_like == True %}
+                            <button class="button" onclick="like(this, '{{ book_isbn }}', '{{ store_id }}')">찜</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            {% if messages %}
+                {% for message in messages %}
+                <p style="color:red">{{ message.message }}</p>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+    </div>
+    <div class="text-center mt-3">
+        <h3 align="left">책소개</h3>
+        <br>
+        <div class="book_msg">
+            {% if book.detail_img == None %}
+                <img width="300" height="330" src="{% static 'images/default_img.jpg' %}">
+            {% else %}
+                <img width="300" height="330" src="{{ book.detail_img }}">
+            {% endif %}
+            <br><br><p>{{ book.book_msg }}</p>
+        </div><hr><br>
+        <div class="review">
+            <h3 align="left" id="review_list">리뷰</h3><br>
+            <form class="mt-3" method="POST" enctype="multipart/form-data" action="{% url 'customer:book_review' book.isbn book.store_id %}">
+                {% csrf_token %}
+                <div><input type="text" id="title" name="title" placeholder="제목" required></div>
+                <select class="star" name="evaluate_score" id="evaluate_score">
+                    <option value=2>★</option>
+                    <option value=4>★★</option>
+                    <option value=6>★★★</option>
+                    <option value=8>★★★★</option>
+                    <option value=10>★★★★★</option>
+                </select>
+                <div><input id="content" name="content" placeholder="리뷰 내용" style="width:500px; height:100px; letter-spacing: -5px" required>
+                    <button type="submit" class="review_button" onclick="">리뷰 쓰기</button></div>
+            </form><br><hr>
+
+            <div align="right">
+                <button style="font-size: 15px;" onclick="review_recent(this, '{{ book.isbn }}')">최신순</button>
+                <button style="font-size: 15px;" onclick="review_highScore(this, '{{ book.isbn }}')">평점순</button>
+            </div>
+            <div id="review_order" name="review_order">
+            {% for review in review %}
+            <div class="review_list">
+                <p id="review_title" name="review_title"> {{ review.title }} &nbsp;&nbsp</p>
+                        <b style="color:gold; align:right" id="review_score" name="review_score" >
+                            {% if review.evaluate_score == 2 %}★☆☆☆☆
+                            {% elif review.evaluate_score == 4 %}★★☆☆☆
+                            {% elif review.evaluate_score == 6 %}★★★☆☆
+                            {% elif review.evaluate_score == 8 %}★★★★☆
+                            {% elif review.evaluate_score == 10 %}★★★★★
+                            {% endif %} &nbsp;&nbsp;
+                        </b><br>
+                        <p id="review_user" name="review_user">{{ review.user_id }} &nbsp;&nbsp;</p>
+                {% if review.user_id == user.username %}
+                    <button style="font-size: 15px;" id="review_modify" name="review_modify" onclick="review_modify(this, '{{ review.id }}')">수정</button>
+                    <button style="font-size: 15px;" id="review_delete" name="review_delete" onclick="location.href='{% url 'customer:book_review_delete' review.id %}'">삭제</button><br>
+                {% endif %}
+            </div>
+            <p id="review_content" name="review_content"> {{ review.content }} </p>
+            {% if review.answer == None %}
+            {% else %}
+            <p style="margin-left:50px;">→ 답변: {{ review.answer }}</p>
+            {% endif %}
+            {% endfor %}
+            </div>
+
+            <div id="modal" class="searchModal">
+                <div class="search-modal-content">
+                    <div class="page-header">
+                        <h1>리뷰 수정</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <form id="review_modal_form" name="review_modal_form" class="mt-3" method="POST" enctype="multipart/form-data" action="">
+                                        {% csrf_token %}
+                                        <div><input type="text" id="modal_review_title" name="modal_review_title" value="#" required></div>
+                                        <select class="star" name="modal_review_evaluate_score" id="modal_review_evaluate_score">
+                                            <option value=2>★</option>
+                                            <option value=4>★★</option>
+                                            <option value=6>★★★</option>
+                                            <option value=8>★★★★</option>
+                                            <option value=10>★★★★★</option>
+                                        </select>
+                                        <div><input id="modal_review_content" name="modal_review_content" value="#" style="width:500px; height:100px; letter-spacing: -5px" required>
+                                            <button type="submit" class="review_button" onclick="">리뷰 수정</button></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;" onClick="closeModal();">
+                        <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기
+                        </span>
+                    </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript" src="https://service.iamport.kr/js/iamport.payment-1.1.2.js"></script>
+<script type="text/javascript">
+    function like(elm, n, m) {
+        $.ajax({
+            url: "{% url 'customer:book_like' 1 2 %}".replace('1',n).replace('/2/', '/'+ m +'/'),
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            type: "POST",
+            success: function(response) {
+                if (response.update_is_like == true) {
+                    $(elm).attr("onclick", "like(this, '" + n + "', '" + m + "')");
+                    $(elm).attr("class", "button");
+                    alert("찜 목록에 추가되었습니다.");
+                }
+                else if (response.update_is_like == false){
+                    $(elm).attr("onclick", "like(this, '" + n + "', '" + m + "')");
+                    $(elm).attr("class", "like_button");
+                    alert("찜 목록에서 삭제되었습니다.");
+                }
+            },
+            error: function(error) {
+                alert("찜 하기를 하는 과정에서 에러가 발생하였습니다.");
+            },
+        });
+    }
+
+    //리뷰의 수정, 삭제버튼에 대한 경로를 하드코딩으로 지정한 상태.
+    function review_recent(elm, n) {
+        $.ajax({
+            url: "{% url 'customer:ajax_review_recent' 1  %}". replace('1',n),
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            type: "GET",
+            success: function(response) {
+            var review_list = ""
+                for(var i=0; i<response.review.length; i++){
+                    if (response.review[i].evaluate_score === 10){
+                        response.review[i].evaluate_score = "★★★★★";
+                    }else if (response.review[i].evaluate_score == 8 ){
+                        response.review[i].evaluate_score = "★★★★☆";
+                    }else if (response.review[i].evaluate_score == 6 ){
+                        response.review[i].evaluate_score = "★★★☆☆";
+                    }else if (response.review[i].evaluate_score == 4 ){
+                        response.review[i].evaluate_score = "★★☆☆☆";
+                    }else{
+                        response.review[i].evaluate_score = "★☆☆☆☆";
+                    }
+
+                    var div_start = "<div class='review_list'>";
+
+                    var title = "<p id='review_title' name='review_title'>" + response.review[i].title + "&nbsp;&nbsp</p>";
+                    var review_score = "<b style='color:gold; align:right' id='review_score' name='review_score' > " + response.review[i].evaluate_score + " &nbsp;&nbsp; </b><br>";
+                    var user_name = "<p id='review_user' name='review_user'>"+ response.review[i].user_id +"&nbsp;&nbsp;</p>";
+
+                    var modify_button1 = "<button style='font-size: 15px;' id='review_modify' name='review_modify' onclick=\"review_modify(this,'";
+                    var modify_button2 =  response.review[i].id;
+                    var modify_button3 = "')\">수정</button>";
+                    var modify_button = modify_button1 + modify_button2 + modify_button3;
+
+                    var delete_button1 = "<button style='font-size: 15px;' id='review_delete' name='review_delete' onclick=\"location.href='/review/";
+                    var delete_button2 =  response.review[i].id;
+                    var delete_button3 = "/user/'\">삭제</button>";
+                    var delete_button = delete_button1 + delete_button2 + delete_button3;
+
+                    var div_end = "</div>"
+
+                    var content = "<p id='review_content' name='review_content'>"+ response.review[i].content +"</p>";
+
+                    if (response.review[i].user_id===response.review[i].login_user){
+                        var review = div_start + title + review_score + user_name + modify_button + delete_button + div_end + content;
+                    }else{
+                        var review = div_start + title + review_score + user_name + div_end + content;
+                    }
+
+                    var review_list = review_list + review;
+
+                }
+                $("#review_order").html(review_list);
+
+
+            },
+            error: function(error) {
+                alert(error);
+            },
+        });
+    }
+
+    //리뷰의 수정, 삭제버튼에 대한 경로를 하드코딩으로 지정한 상태.
+    function review_highScore(elm, n) {
+        $.ajax({
+            url: "{% url 'customer:ajax_review_high_score' 1  %}". replace('1',n),
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            type: "GET",
+            success: function(response) {
+            var review_list = ""
+                for(var i=0; i<response.review.length; i++){
+                    if (response.review[i].evaluate_score === 10){
+                        response.review[i].evaluate_score = "★★★★★";
+                    }else if (response.review[i].evaluate_score == 8 ){
+                        response.review[i].evaluate_score = "★★★★☆";
+                    }else if (response.review[i].evaluate_score == 6 ){
+                        response.review[i].evaluate_score = "★★★☆☆";
+                    }else if (response.review[i].evaluate_score == 4 ){
+                        response.review[i].evaluate_score = "★★☆☆☆";
+                    }else{
+                        response.review[i].evaluate_score = "★☆☆☆☆";
+                    }
+
+                    var div_start = "<div class='review_list'>";
+
+                    var title = "<p id='review_title' name='review_title'>" + response.review[i].title + "&nbsp;&nbsp</p>";
+                    var review_score = "<b style='color:gold; align:right' id='review_score' name='review_score' > " + response.review[i].evaluate_score + " &nbsp;&nbsp; </b><br>";
+                    var user_name = "<p id='review_user' name='review_user'>"+ response.review[i].user_id +"&nbsp;&nbsp;</p>";
+
+                    var modify_button1 = "<button style='font-size: 15px;' id='review_modify' name='review_modify' onclick=\"review_modify(this, '";
+                    var modify_button2 =  response.review[i].id;
+                    var modify_button3 = "')\">수정</button>";
+                    var modify_button = modify_button1 + modify_button2 + modify_button3;
+
+                    var delete_button1 = "<button style='font-size: 15px;' id='review_delete' name='review_delete' onclick=\"location.href='/review/";
+                    var delete_button2 =  response.review[i].id;
+                    var delete_button3 = "/user/'\">삭제</button>";
+                    var delete_button = delete_button1 + delete_button2 + delete_button3;
+
+                    var div_end = "</div>"
+
+                    var content = "<p id='review_content' name='review_content'>"+ response.review[i].content +"</p>";
+
+                    var review = div_start + title + review_score + user_name + modify_button + delete_button + div_end + content;
+
+                    if (response.review[i].user_id===response.review[i].login_user){
+                        var review = div_start + title + review_score + user_name + modify_button + delete_button + div_end + content;
+                    }else{
+                        var review = div_start + title + review_score + user_name + div_end + content;
+                    }
+
+                    var review_list = review_list + review;
+
+                }
+                $("#review_order").html(review_list);
+
+
+            },
+            error: function(error) {
+                alert(error);
+            },
+        });
+    }
+
+    function payment() {
+        $(function(){
+            var IMP = window.IMP;
+            IMP.init('imp96816484');
+
+           IMP.request_pay({
+               pg : 'kakao',
+               pay_method : 'card',
+               merchant_uid : 'merchant_' + new Date().getTime(),
+               name : '주문명: 결제 테스트',
+               amount : '100,000',
+               buyer_email : '',
+               buyer_name :  '',
+               buyer_tel :  '',
+               buyer_addr :  '',
+               buyer_postcode :  '',
+               m_redirect_url : '/khx/payEnd.action'	// 결제 완료 후 보낼 컨트롤러의 메소드명
+           }, function(rsp) {
+            if ( rsp.success ) { // 성공시
+                var msg = '결제가 완료되었습니다.';
+                msg += '고유ID : ' + rsp.imp_uid;
+                msg += '상점 거래ID : ' + rsp.merchant_uid;
+                msg += '결제 금액 : ' + rsp.paid_amount;
+                msg += '카드 승인번호 : ' + rsp.apply_num;
+            } else { // 실패시
+                var msg = '결제에 실패하였습니다.';
+                msg += '에러내용 : ' + rsp.error_msg;
+            }
+            });
+
+        });
+    }
+
+    function review_modify(elm, n) {
+        jQuery(document).ready(function () {
+            $.ajax({
+                url: "{% url 'customer:book_review_modify' 1 %}".replace('1',n),
+                data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+                dataType: "json",
+                type: "GET",
+                success: function(response) {
+                    var action1 = "/review/";
+                    var action2 = response.current_review_data.review_id;
+                    var action3 = "/modify/";
+                    var action = action1 + action2 + action3;
+
+                    $("#review_modal_form").attr("action",action);
+                    $("#modal_review_title").attr("value",response.current_review_data.title);
+                    $("#modal_review_content").attr("value",response.current_review_data.content);
+                },
+                error: function(error) {
+                    alert("데이터 로딩 중 에러가 발생하였습니다.");
+                },
+            });
+
+            $("#modal").show();
+        });
+    }
+
+    function closeModal() {
+        $('.searchModal').hide();
+    };
+
+
+</script>
+
+{% endblock body %}

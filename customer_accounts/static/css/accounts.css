@@ -1,0 +1,71 @@
+.card{
+    border: 1px solid #c7c7c7;
+    background-color: #fafafa;
+    width:350px;
+    height: auto;
+}
+.main{
+    background-color: white;
+}
+.container{
+    margin-top: 50px;
+}
+.card{
+    border: 1px solid #c7c7c7;
+    background-color: #fafafa;
+    width:500px;
+    height: auto;
+    margin: 0 auto;
+}
+.profile_img{
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+    margin: 10px;
+}
+.custom-file{
+    margin-bottom: 10px;
+}
+.card-header{
+    text-align: center;
+}
+
+/* 탭 메뉴 */
+button {
+  background:none;
+  border:0;
+  outline:0;
+  cursor:pointer;
+}
+.tab_menu_container {
+  display:flex;
+}
+.tab_menu_btn {
+  width:90px;
+  height:40px;
+  transition:0.3s all;
+}
+.tab_menu_btn.on {
+  border-bottom:2px solid #df0000;
+  font-weight:700;
+  color:#df0000;
+}
+.tab_menu_btn:hover {
+  color:#df0000;
+}
+.tab_box {
+  display:none;
+  padding:20px;
+}
+.tab_box.on {
+  display:block;
+}
+
+
+footer {
+    margin-top : 300px;
+}
+.pw_footer {
+    margin-top : 450px;
+}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/category.css' %}">
+{% endblock head %}
+
+{% block title %}
+책 카테고리 페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+
+<div class="container">
+    <div class="aside-result">
+        <a href="{% url 'customer:category' %}" >
+            <p>전체 리스트</p>
+        </a>
+        <h3>{{main_category}}</h3>
+    </div>
+
+    <div class="content-2">
+        <div class="flex-book result">
+            {% for book in books %}
+                      <div class="col">
+                          <button onclick="location.href='/book-list/?title={{ book.book_name }}&publisher={{ book.publisher }}&author={{ book.author }}'">
+                              <div class="image book">
+                                  <img align="center" src="{{ book.book_img }}" alt="" />
+                              </div>
+                                <input class="input_box" id="title" name="title" value="{{ book.book_name }}"><br><br>
+                                <input class="input_box" id="publisher" name="publisher" value="{{ book.publisher }}"><br>
+                                <input class="input_box" id="author" name="author" value="{{ book.author }}">
+                          </button>
+                      </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+</script>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+{% endblock body %}

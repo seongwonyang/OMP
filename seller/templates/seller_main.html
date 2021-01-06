@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/seller_main.css' %}">
+{% endblock head %}
+{% block title %}
+판매자 홈 | alleybookstore
+{% endblock title %}
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+{% block body %}
+    {% if user.is_authenticated %}
+<div class="container">
+    <div class="seller_flex">
+        <div class="seller_main">
+            <b style="color:purple; margin-left:10px; font-size:20px">| <b style="color:orange">판매 현황</b>
+            </b>
+            <table class="type04">
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:order_check' %}'">주문확인 요청</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:delivery_check' %}'">배송 & 구매확정전</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:settlement_check' %}'">정산 조회</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:monthly_settlement' %}'">월별 정산서</th>
+                </tr>
+            </table>
+        </div>
+
+        <div class="seller_main">
+            <b style="color:purple; margin-left:10px; font-size:20px">| <b style="color:orange">상품 관리</b>
+           </b>
+            <table class="type04">
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:product_register' %}'">상품 등록</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:product_list' %}'">상품 및 재고 관리</th>
+                </tr>
+            </table>
+        </div>
+        <div class="seller_main">
+            <b style="color:purple; margin-left:10px; font-size:20px">| <b style="color:orange">반품 접수 내역</b>
+           </b>
+            <table class="type04">
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:order_return' 'new' %}'">신규 접수</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:order_return' 'complete' %}'">반품 완료</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="seller_flex" style="margin-bottom:50px">
+        <div class="seller_main">
+            <b style="color:purple; margin-left:10px; font-size:20px">| <b style="color:orange">게시판</b>
+           </b>
+            <table class="type04">
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:notice' %}'">서점 공지사항</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:review_manage' %}'">리뷰 관리</th>
+                </tr>
+                <tr>
+                    <th scope="row" onclick="location.href='{% url 'seller:frequent_question' %}'">Q&A</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+    {% else %}
+    <div class="not_login_flex" style="margin-bottom:50px">
+        <div class="seller_main" style="margin-left:500px; text-align:center">
+            <br><b style="font-size:30px"># ALLEY BOOKSTORE Shop Manger</b><br>
+            <button class="button">서점등록</button>
+            <div><img class="seller_main_img" width="500px" height="400px" src="{% static 'images/not_login_main.jpg' %}"></div>
+        </div>
+    </div>
+    {% endif %}
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+<script>
+  document.addEventListener("DOMContentLoaded", function (event) {
+    navActivePage();
+  });
+</script>
+<script type="text/javascript" src="./main.41beeca9.js"></script>
+{% endblock body %}

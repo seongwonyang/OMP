@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/order.css' %}">
+{% endblock head %}
+
+{% block title %}
+1:1 문의 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <h3>● 1:1 문의현황</h3><br>
+        <b style="font-size: 20px">답변 완료: {{ question_count.answered_question_counts }}개&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;답변 미완료: {{ question_count.unanswered_question_counts }}개</b><hr>
+            <div>
+                <table>
+                    {% for data in question_info %}
+                    <tr>
+                        <th style="font-size:20px; font-weight:bold;" id="customer_id_{{data.id}}" name="customer_id_{{data.id}}">[{{ data.customer_id }}]&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th style="font-size:20px; font-weight:bold" id="title_{{data.id}}" name="title_{{data.id}}">Q . {{ data.title }}</th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td style="font-size:17px; font-weight:bold" id="content_{{data.id}}" name="content_{{data.id}}">▶ {{ data.content }}</td>
+
+                    </tr>
+                    <tr>
+                        <td><button class="after_button" onclick="question_answer(this, '{{data.id}}')">답변하기</button></td>
+                        {% if data.answer_complete == 1 %}
+                        <td style="font-size:17px; font-weight:bold; color:blue">{{ data.answer }}</td>
+                        {% elif data.answer_complete == 0 %}
+                        <td style="font-size:17px; font-weight:bold; color:red">답변 미완료</td>
+                        {% endif %}
+                    </tr>
+                    <tr>
+                        <td>ㅡㅡㅡㅡㅡㅡㅡㅡ</td>
+                        <td>ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+
+        <div id="modal" class="answer_Modal">
+            <div class="answer-modal-content">
+                <div class="page-header">
+                    <h1>● 1:1 질문답변</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <form class="mt-3" name="answer_form" id="answer_form" method="POST" enctype="multipart/form-data" action="#">
+                                    {% csrf_token %}
+                                    <div>
+                                        <p style="font-size:15px; font-weight:bold;" id="modal_customer" name="modal_customer"></p>
+                                        <p style="font-size:15px; font-weight:bold;" id="modal_title" name="modal_title"></p>
+                                        <p style="font-size:15px; font-weight:bold;" id="modal_content" name="modal_content"></p>
+                                    </div><br>
+                                    <div>
+                                        <textarea id="modal_answer" name="modal_answer" rows="8" cols="80" type="text" placeholder="답변" required></textarea>
+                                    </div>
+                                    <br><button type="submit" class="after_button">답변하기</button>
+                                    <p>※ 답변을 입력하고 '답변하기' 버튼을 누르시면 수정도 가능합니다.</p>
+                                    {% if messages %}
+                                        {% for message in messages %}
+                                          <p style="color:red"> {{message.message}} </p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </form><br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;" onClick="closeModal();">
+                    <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+    function question_answer(elm,n) {
+        $("#answer_form").attr("action", "/seller/individual-question-answer/" + n + "/");
+
+        $("#modal_customer").text("질문자 : "+$("#customer_id_" + n).text());
+        $("#modal_title").text($("#title_" + n).text());
+        $("#modal_content").text($("#content_" + n).text());
+        $("#modal").show();
+    }
+
+    function closeModal() {
+        $('.answer_Modal').hide();
+    };
+
+</script>
+
+{% endblock body %}

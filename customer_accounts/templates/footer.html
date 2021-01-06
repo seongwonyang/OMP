@@ -1,0 +1,40 @@
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/_nav.css' %}">
+{% endblock head %}
+
+<footer>
+    <div class="section-container footer-container">
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-4" align="center">
+                        {% if user.is_authenticated and user.user_type == 3 %}
+                        <a href="{% url 'seller:main' %}">| 판매자 페이지</a>
+                        {% else %}
+                        <a href="{% url 'seller_accounts:seller_login' %}">| 판매자 페이지</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4" align="center">
+                        <a href="{% url 'customer:main' %}"><img width="130px" src="{% static 'images/ab_logo.png' %}"></a>
+                    </div>
+
+                    <div class="col-md-4" align="center">
+                        <h5>만든 사람들</h5>
+                        <p>
+                            <a href="https://github.com/yjk5309" class="social-round-icon white-round-icon fa-icon" title="yjk">
+                            <i class="fa fa-git" aria-hidden="true"></i>
+                          </a>
+                          <a href="https://github.com/seongwonyang" class="social-round-icon white-round-icon fa-icon" title="swy">
+                            <i class="fa fa-git" aria-hidden="true"></i>
+                          </a>
+                          <a href="https://github.com/cyj199637" class="social-round-icon white-round-icon fa-icon" title="yjj">
+                            <i class="fa fa-git" aria-hidden="true"></i>
+                          </a>
+                        </p>
+                        <p><small>ⓒ Alley BookStore. All Rights Reserved.</small></p>
+                    </div>
+            </div>
+        </div>
+    </div>
+</footer>

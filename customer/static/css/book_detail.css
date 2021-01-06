@@ -1,0 +1,169 @@
+.container {
+  overflow: hidden;
+}
+
+.aside {
+  float: left;
+  width: 350px;
+  margin-right: 50px;
+}
+
+.result_box {
+    margin-top: 50px;
+    margin-bottom: 100px;
+    display: flex;
+}
+
+.book_title {
+    font-family: serif;
+    font-weight: bolder;
+    font-size: 35px;
+}
+
+.book_content {
+    font-family: sans-serif;
+    font-weight: bolder;
+    font-size: 20px;
+    margin-left: 70px;
+    margin-top: 20px;
+}
+
+.store_list {
+    font-family: sans-serif;
+    font-weight: bolder;
+    font-size: 17px;
+    margin-top: 50px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.book_msg {
+    font-size: 20px;
+    margin-top: 30px;
+    text-align: left;
+    margin-bottom: 80px;
+}
+
+.review {
+    font-size: 20px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.button {
+    width:100px;
+    background-color: #f8585b;
+    border: none;
+    color:#fff;
+    padding: 15px 0;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px;
+    cursor: pointer;
+    border-radius:10px;
+    font-weight: bolder;
+}
+
+.review_button  {
+	-moz-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	box-shadow:inset 0px 1px 0px 0px #bbdaf7;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #79bbff), color-stop(1, #378de5) );
+	background:-moz-linear-gradient( center top, #79bbff 5%, #378de5 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#79bbff', endColorstr='#378de5');
+	background-color:#79bbff;
+	-webkit-border-top-left-radius:6px;
+	-moz-border-radius-topleft:6px;
+	border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	-moz-border-radius-topright:6px;
+	border-top-right-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
+	-moz-border-radius-bottomright:6px;
+	border-bottom-right-radius:6px;
+	-webkit-border-bottom-left-radius:6px;
+	-moz-border-radius-bottomleft:6px;
+	border-bottom-left-radius:6px;
+
+text-indent:0;
+	border:0.994318px solid #84bbf3;
+	display:inline-block;
+	color:#ffffff;
+	font-family:arial;
+	font-size:15px;
+	font-weight:bold;
+	font-style:normal;
+
+    height:90px;
+        line-height:50px;
+    width:80px;
+        text-decoration:none;
+        text-align:center;
+        text-shadow:0px 1px 0px #528ecc;
+
+    }.classname:hover {
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #378de5), color-stop(1, #79bbff) );
+        background:-moz-linear-gradient( center top, #378de5 5%, #79bbff 100% );
+        filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#378de5', endColorstr='#79bbff');
+        background-color:#378de5;
+    }.classname:active {
+        position:relative;
+        top:1px;
+}
+
+.like_button{
+    width:100px;
+    background-color: #fff;
+    border-color: #f8585b;
+    border-width: 2px;
+    border-style: solid;
+    color: #f8585b;
+    padding: 15px 0;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px;
+    cursor: pointer;
+    border-radius:10px;
+    font-weight: bolder;
+}
+
+.star {
+    font-family: inherit;
+    border: 1px solid #999;
+    border-radius: 0px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color: gold;
+}
+
+.review_list {
+    display: flex;
+    margin-top: 50px;
+}
+
+.searchModal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 10; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+/* Modal Content/Box */
+.search-modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 70%;
+}
+

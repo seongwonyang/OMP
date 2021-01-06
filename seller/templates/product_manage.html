@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/product_manage.css' %}">
+{% endblock head %}
+
+{% block title %}
+상품 관리 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+
+<div class="container">
+    <div align="center">
+        <div align="right" style="margin:30px 0 30px 0;">
+        <form class="mt-3" method="post" enctype="multipart/form-data" action='{% url "seller:search_book_in_manage" %}'>{% csrf_token %}
+            <label for="search_book">수정하거나 삭제할 책을 검색하세요</label><br>
+            <input id="search_book" type="text" name="search_book" value="{{search_book}}" size="35" placeholder="책 제목이나 작가이름으로 검색하세요">
+            <button class="btn btn-primary" type="submit">검색</button>
+            {% if messages %}
+                {% for message in messages %}
+                  <p style="color:red"> {{message.message}} </p>
+                {% endfor %}
+            {% endif %}
+        </form>
+        </div>
+        <hr>
+        {% if tab == 'search_book' %}
+        <div class="content">
+            <a href="{% url 'seller:product_list' %}" >전체 목록 보기</a>
+            {% for book in books %}
+                <div style="margin-top:50px;" class="list">&nbsp;
+                        <img width="80" height="110" style="margin-left:140px;" src="{{ book.book_img }}">
+                        <table class="book_table">
+                            <tr>
+                                <th width="200px;"><p class="content title">상품명</p></th>
+                                <th width="180px;"><p class="content title">작가</p></th>
+                                <th width="100px;"><p class="content title">가격</p></th>
+                                <th width="80px;"><p class="content title">수량</p></th>
+                            </tr>
+                            <tr>
+                                <td width="200px;"><p class="content">{{ book.book_name }}</p></td>
+                                <td width="180px;"><p class="content">{{ book.author }}원</p></td>
+                                <td width="100px;"><p class="content">{{ book.price }}원</p></td>
+                                <td width="80px;"><p class="content">{{ book.quantity }}권</p></td>
+                            </tr>
+                        </table>
+                        <div>
+                            <button type="button" class="button" onclick="book_modify(this, '{{ book.isbn }}')">수정</button>
+                            <button type="button" class="button" onclick="location.href = '{% url 'seller:book_delete' book.store_id book.isbn %}'">삭제</button>
+                        </div>
+                </div>
+            <hr>
+            {% endfor %}
+        </div>
+        {% else %}
+        <h3 align="left">현재 등록되어있는 책 목록입니다</h3>
+        {% for book in books %}
+        <div style="margin-top:50px;" class="list">&nbsp;
+                <img width="80" height="110" style="margin-left:140px;" src="{{ book.book_img }}">
+                <table class="book_table">
+                    <tr>
+                        <th width="200px;"><p class="content title">상품명</p></th>
+                        <th width="180px;"><p class="content title">작가</p></th>
+                        <th width="100px;"><p class="content title">가격</p></th>
+                        <th width="80px;"><p class="content title">수량</p></th>
+                    </tr>
+                    <tr>
+                        <td width="200px;"><p class="content">{{ book.book_name }}</p></td>
+                        <td width="180px;"><p class="content">{{ book.author }}원</p></td>
+                        <td width="100px;"><p class="content">{{ book.price }}원</p></td>
+                        <td width="80px;"><p class="content">{{ book.quantity }}권</p></td>
+                    </tr>
+                </table>
+                <div>
+                    <button type="button" class="button" onclick="book_modify(this, '{{ book.isbn }}')">수정</button>
+                    <button type="button" class="button" onclick="location.href = '{% url 'seller:book_delete' book.store_id book.isbn %}'">삭제</button>
+                </div>
+        </div>
+        <hr>
+        {% endfor %}
+        {% endif %}
+    </div>
+<div id="modal" class="searchModal">
+    <div class="search-modal-content">
+        <div class="page-header">
+            <h1>책 정보를 수정합니다.</h1>
+        </div>
+    <form class="mt-3" method="post" action='{% url "seller:book_modify" %}' enctype="multipart/form-data">{% csrf_token %}
+    <div class="form-group">
+        <input type="text" class="form-control" id="name" name="name" value="" required readonly>
+    </div>
+    <div class="form-group">수량
+        <input type="number" class="form-control" id="inven" name="inven" value="" placeholder="등록수량" required>
+    </div>
+    <div class="form-group">가격(원)
+        <input type="text" class="form-control" id="price" name="price" value="" placeholder="판매가격" required>
+    </div>
+    <div class="form-group">책 소개
+        <input type="textarea" class="form-control" id="book_msg" name="book_msg" value="" placeholder="책 소개" rows="5" required>
+    </div>
+        <input type="hidden" id="store_id" name="store_id" value="">
+        <input type="hidden" id="isbn" name="isbn" value="">
+    <button type="submit" class="btn btn-primary" >수정</button>
+    </form><br>
+        <hr>
+        <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;" onClick="closeModal();">
+            <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기
+            </span>
+        </div>
+    </div>
+</div>
+</div>
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer  %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function (event) {
+    navActivePage();
+});
+
+function book_modify(elm, n) {
+    $.ajax({
+        url: "{% url 'seller:book_modify_ajax' 1 %}".replace("1",n),
+        data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+        dataType: "json",
+        type: "GET",
+        success: function(response){
+            //책정보
+            $("#name").attr('value',response.book_info.name);
+            $("#inven").attr('value',response.book_info.inven);
+            $("#price").attr('value',response.book_info.price);
+            $("#book_msg").attr('value',response.book_info.book_msg);
+            $("#store_id").attr('value',response.book_info.store_id);
+            $("#isbn").attr('value',response.book_info.isbn);
+        },
+        error: function(request,status,error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        },
+    });
+
+    $("#modal").show();
+}
+function closeModal() {
+    $('.searchModal').hide();
+};
+
+</script>
+
+<script type="text/javascript" src="./main.41beeca9.js"></script>
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+
+{% endblock body %}

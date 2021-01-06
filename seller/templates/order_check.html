@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/order.css' %}">
+{% endblock head %}
+
+{% block title %}
+주문 확인 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_seller_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div align="center" style="margin-top:100px;">
+            <table class="order_history">
+                <tr class="order_history_tr">
+                    <th class="order_history_th" width="190">주문번호</th>
+                    <th class="order_history_th" width="250">주문날짜</th>
+                    <th class="order_history_th" width="150">결제금액</th>
+                    <th class="order_history_th" width="100">결제방식</th>
+                    <th class="order_history_th" width="100">결제상태</th>
+                    <th class="order_history_th" width="100">입금 확인여부</th>
+                </tr>
+                {% for data in order_info_list %}
+                <tr class="order_history_tr">
+                    <td class="order_history_td" width="190"><a onclick="order_detail(this, '{{ data.order_num }}')">{{ data.order_num }}</a></td>
+                    <td class="order_history_td" width="100">{{ data.buy_date }}</td>
+                    <td class="order_history_td" width="250">{{ data.purchased_price }} 원</td>
+                    <td class="order_history_td" width="250">
+                        {% if data.payment == 'card' %}카드결제
+                        {% else %}무통장입금{% endif %}
+                    </td>
+                    <td class="order_history_td" width="250">{{ data.order_status }}</td>
+                    <td class="order_history_td" width="250">
+                        {% if data.payment == 'bank' %}
+                            {% if data.order_status == "결제 대기중" %}
+                                <button class="before_button" name="pay_button" onclick="pay_check(this, '{{ data.order_num }}')">미확인</button>
+                            {% elif data.order_status == "결제 완료" %}
+                                <button class="after_button" name="pay_button" onclick="pay_check(this, '{{ data.order_num }}')">확인</button>
+                            {% endif %}
+                        {% else %} -- {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div id="modal" class="orderModal">
+            <div class="order-modal-content">
+                <div class="page-header">
+                    <h1>주문 상세 정보</h1>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <p style="font-weight:bold; font-size:25px;">주문상품 정보</p>
+                                <div id="book_info" name="book_info">
+
+                                </div>
+
+                                <table class="order_detail">
+                                    <p style="font-weight:bold; font-size:25px;">주문자 정보</p>
+                                    <tr class="order_detail_tr">
+                                        <td class="order_detail_th" width="120">주문자</td>
+                                        <td class="order_detail_td" id="order_name" name="order_name" width="300"></td>
+                                    </tr>
+                                    <tr class="order_detail_tr">
+                                        <td class="order_detail_th" width="120">전화번호</td>
+                                        <td class="order_detail_td" id="order_p_num" name="order_p_num" width="300"></td>
+                                    </tr>
+                                    <tr class="order_detail_tr">
+                                        <td class="order_detail_th" width="120">E-Mail</td>
+                                        <td class="order_detail_td" id="order_email" name="order_email" width="300"></td>
+                                    </tr>
+                                    <tr class="order_detail_tr">
+                                        <td class="order_detail_th" width="120">배송지</td>
+                                        <td class="order_detail_td" id="order_address" name="order_address" width="300"></td>
+                                    </tr>
+                                    <tr class="order_detail_tr">
+                                        <td class="order_detail_th" width="120">요청사항</td>
+                                        <td class="order_detail_td" id="order_memo" name="order_memo" width="300"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;" onClick="closeModal();">
+                    <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js" ></script>
+<script type="text/javascript">
+    function pay_check(elm, n) {
+        $.ajax({
+            url: "{% url 'seller:pay_check_ajax' 1 %}".replace("1",n),
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            type: "POST",
+            success: function(response){
+                if (response.update_order_status == "결제 완료"){
+                    $(elm).parent().prev().text("결제 완료");
+                    $(elm).attr("onclick", "pay_check(this, '" + n + "')");
+                    $(elm).attr("class", "after_button");
+                    $(elm).text("확인");
+                    alert('입금 확인 처리가 되었습니다.');
+                }
+                else if (response.update_order_status == "결제 대기중"){
+                    $(elm).parent().prev().text("결제 대기중");
+                    $(elm).attr("onclick", "pay_check(this, '" + n + "')");
+                    $(elm).attr("class", "before_button");
+                    $(elm).text("미확인");
+                    alert('입금 미확인 처리가 되었습니다.');
+                }
+            },
+            error: function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            },
+        });
+    }
+
+    function order_detail(elm, n) {
+        $.ajax({
+            url: "{% url 'seller:order_detail_ajax' 1 %}".replace("1",n),
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            type: "GET",
+            success: function(response){
+                //책정보
+                var book_info = "";
+                for(i=0; response.book_data.length; i++){
+                    if(i==response.book_data.length){
+                            break;
+                        }
+                    var data = "<div class='order_book'><img class='book_img' width='180' height='200' src='"+ response.book_data[i].book_img +"'>";
+                    data += "<table class='book_content'> <tr><td class='book_content_td'>ISBN</td><td>"+ response.book_data[i].isbn +"</td></tr>";
+                    data += "<tr><td class='book_content_td'>제목</td><td>"+ response.book_data[i].book_name +"</td></tr>";
+                    data += "<tr><td class='book_content_td'>작가</td><td>"+ response.book_data[i].author +"</td></tr>";
+                    data += "<tr><td class='book_content_td'>출판사</td><td>"+ response.book_data[i].publisher +"</td></tr>";
+                    data += "<tr><td class='book_content_td'>주문수량</td><td>"+ response.book_data[i].quantity +"권</td></tr></table></div>"
+
+
+                    data += "<hr>"
+                    book_info += data;
+                }
+
+                $("#book_info").html(book_info);
+
+                //주문자 정보
+                $("#order_name").text(response.order_detail.order_name);
+                $("#order_p_num").text(response.order_detail.order_p_num);
+                $("#order_email").text(response.order_detail.order_email);
+                $("#order_address").text(response.order_detail.order_address);
+                $("#order_memo").text(response.order_detail.order_memo);
+            },
+            error: function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            },
+        });
+
+        $("#modal").show();
+    }
+
+    function closeModal() {
+        $('.orderModal').hide();
+    };
+
+</script>
+
+{% endblock body %}

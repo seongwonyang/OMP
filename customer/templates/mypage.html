@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block head %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/mypage.css' %}">
+{% endblock head %}
+
+{% block title %}
+마이페이지 | alleybookstore
+{% endblock title %}
+
+{% block _nav %}
+  {% include '_nav.html' %}
+{% endblock _nav %}
+
+{% block body %}
+<div class="container">
+<div class="tab_wrap">
+  {% if tab == 'basket' %}
+  <div class="tab_menu_container">
+    <button class="tab_menu_btn" type="button" onclick="location.href='{% url 'customer:mypage' %}'">주문확인/배송조회</button>
+    <button class="tab_menu_btn on" onclick="location.href='{% url 'customer:mypage_basket' %}'" type="button">장바구니</button>
+    <button class="tab_menu_btn" type="button">마이리스트</button>
+    <button class="tab_menu_btn" type="button" onclick="location.href='{% url 'customer_accounts:password_check' %}'" >회원정보</button>
+  </div> <!-- tab_menu_container e -->
+
+  <div class="tab_box_container">
+    <div class="tab_box">{% include 'order_history_list.html' %}</div>
+    <div class="tab_box on">{% include 'book_basket.html' %}</div>
+    <div class="tab_box">{% include 'mylist.html' %}</div>
+  </div> <!-- tab_box_container e -->
+  {% else %}
+  <div class="tab_menu_container">
+    <button class="tab_menu_btn on" type="button" onclick="location.href='{% url 'customer:mypage' %}'">주문확인/배송조회</button>
+    <button class="tab_menu_btn" type="button">장바구니</button>
+    <button class="tab_menu_btn" type="button">마이리스트</button>
+    <button class="tab_menu_btn" type="button" onclick="location.href='{% url 'customer_accounts:password_check' %}'" >회원정보</button>
+  </div> <!-- tab_menu_container e -->
+
+  <div class="tab_box_container">
+    <div class="tab_box on">{% include 'order_history_list.html' %}</div>
+    <div class="tab_box">{% include 'book_basket.html' %}</div>
+    <div class="tab_box">{% include 'mylist.html' %}</div>
+  </div> <!-- tab_box_container e -->
+  {% endif %}
+</div> <!-- tab_wrap e -->
+
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $('.tab_menu_btn').on('click',function(){
+      //버튼 색 제거,추가
+      $('.tab_menu_btn').removeClass('on');
+      $(this).addClass('on')
+
+      //컨텐츠 제거 후 인덱스에 맞는 컨텐츠 노출
+      var idx = $('.tab_menu_btn').index(this);
+
+      $('.tab_box').hide();
+      $('.tab_box').eq(idx).show();
+    });
+
+  function order_decision(elm, n){
+        if (confirm("제품수령 완료 및 구매확정을 완료하시겠습니까?") == true){
+            location.href = "/order-decision/" + n;
+        }else{
+            alert('취소되었습니다.');
+            event.preventDefault();
+        }
+    }
+
+</script>
+
+{% block footer %}
+{% include 'footer.html' %}
+{% endblock footer %}
+
+{% endblock body %}

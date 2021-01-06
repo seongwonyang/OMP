@@ -1,0 +1,13 @@
+.book_title {
+    overflow: hidden;
+}
+
+.book_img {
+    float: left;
+    width: 350px;
+    margin-right: 50px;
+}
+
+.book_msg {
+    float: right;
+}
